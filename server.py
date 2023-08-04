@@ -81,18 +81,53 @@ def book(competition,club):
         return render_template('welcome.html', club=club, competitions=competitions)
 
 
+
+def saveClubs(clubs):
+    """Sauvegarde la liste des clubs dans le fichier 'clubs.json'."""
+    with open('clubs.json', 'w') as c:
+        json.dump({'clubs': clubs}, c)
+
+def saveCompetitions(competitions):
+    """Sauvegarde la liste des compétitions dans le fichier 'competitions.json'."""
+    with open('competitions.json', 'w') as comps:
+        json.dump({'competitions': competitions}, comps)
+
+
+
+
 @app.route('/purchasePlaces',methods=['POST'])
 def purchasePlaces():
-    """
-    Gère l'achat de places dans une compétition.
-    Met à jour le nombre de places dans la compétition et affiche un message de succès.
-    """
-    competition = [c for c in competitions if c['name'] == request.form['competition']][0]
-    club = [c for c in clubs if c['name'] == request.form['club']][0]
+    competition = [c for c in competitions if c['name'] == request.form['competition']]
+    club = [c for c in clubs if c['name'] == request.form['club']]
     placesRequired = int(request.form['places'])
-    competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
-    flash('Great-booking complete!')
-    return render_template('welcome.html', club=club, competitions=competitions)
+
+    if not competition or not club:
+        return "Club ou compétition non trouvé.", 404
+
+    competition = competition[0]
+    club = club[0]
+
+    if placesRequired <= 0:
+        flash("Le nombre de places demandées doit être un nombre positif.")
+        return render_template('welcome.html', club=club, competitions=competitions), 400
+
+    if int(competition['numberOfPlaces']) < placesRequired:
+        flash("Pas assez de places disponibles dans la compétition.")
+        return render_template('welcome.html', club=club, competitions=competitions), 400
+
+    if int(club['points']) < placesRequired:
+        flash("Pas assez de points pour réserver ce nombre de places.")
+        return render_template('welcome.html', club=club, competitions=competitions), 400
+
+    competition['numberOfPlaces'] = int(competition['numberOfPlaces']) - placesRequired
+    club['points'] = int(club['points']) - placesRequired
+
+    saveClubs(clubs)
+    saveCompetitions(competitions)
+
+    flash('Super ! Réservation réussie!')
+    return render_template('welcome.html', club=club, competitions=competitions), 200
+
 
 
 @app.route('/logout')

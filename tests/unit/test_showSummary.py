@@ -3,7 +3,6 @@ from flask import url_for
 from server import EmailError, clubs, app
 
 
-
 def test_showSummary_valid_email(monkeypatch):
     """
     Teste la fonction showSummary avec un email valide.
