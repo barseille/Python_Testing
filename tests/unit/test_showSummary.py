@@ -3,7 +3,7 @@ from flask import url_for
 from server import EmailError, clubs, app
 
 
-def test_showSummary_valid_email(monkeypatch):
+def test_showSummary_valid_email(client, monkeypatch):
     """
     Teste la fonction showSummary avec un email valide.
     
@@ -20,18 +20,18 @@ def test_showSummary_valid_email(monkeypatch):
         return clubs[0]
     
     monkeypatch.setattr('server.get_email', mock_get_email)
-    tester = app.test_client()
+    # tester = app.test_client()
     email = clubs[0]['email']
 
     # Act
-    response = tester.post('/showSummary', data={'email': email})
+    response = client.post('/showSummary', data={'email': email})
 
     # Assert
     assert response.status_code == 200
     assert clubs[0]['email'] in response.get_data(as_text=True)
 
 
-def test_showSummary_invalid_email(monkeypatch):
+def test_showSummary_invalid_email(client, monkeypatch):
     """
     Teste la fonction showSummary avec un email invalide.
     La fonction doit retourner une réponse avec le code de statut 302 et l'en-tête de localisation défini sur l'URL de l'index.
@@ -42,13 +42,13 @@ def test_showSummary_invalid_email(monkeypatch):
         raise EmailError('invalid_email@example.com')
     
     monkeypatch.setattr('server.get_email', mock_get_email)
-    tester = app.test_client()
+    # tester = app.test_client()
     app.config['SERVER_NAME'] = 'localhost:5000'
     email = 'invalid_email@example.com'
 
     # Act
     with app.app_context():  
-        response = tester.post('/showSummary', data={'email': email})
+        response = client.post('/showSummary', data={'email': email})
 
         # Assert
         assert response.status_code == 302  # Redirection
