@@ -6,12 +6,19 @@ from server import EmailError, clubs, app
 def test_showSummary_valid_email(monkeypatch):
     """
     Teste la fonction showSummary avec un email valide.
-    La fonction doit retourner une réponse avec le code de statut 200 et l'email du club dans les données de la réponse.
+    
+    Ce test utilise un faux utilisateur pour envoyer une requête POST à l'application, 
+    en prétendant soumettre le formulaire sur la page '/showSummary' avec l'email du premier club.
+    
+    Il vérifie ensuite que l'application répond correctement avec un statut 200 et que l'email du premier club 
+    apparaît bien dans la réponse. Pour ce faire, il remplace temporairement la fonction get_email par une version factice 
+    qui renvoie simplement le premier club, peu importe l'email donné.
     """
     
     # Arrange
     def mock_get_email(email):
         return clubs[0]
+    
     monkeypatch.setattr('server.get_email', mock_get_email)
     tester = app.test_client()
     email = clubs[0]['email']
@@ -33,6 +40,7 @@ def test_showSummary_invalid_email(monkeypatch):
     # Arrange
     def mock_get_email(email):
         raise EmailError('invalid_email@example.com')
+    
     monkeypatch.setattr('server.get_email', mock_get_email)
     tester = app.test_client()
     app.config['SERVER_NAME'] = 'localhost:5000'
@@ -45,7 +53,6 @@ def test_showSummary_invalid_email(monkeypatch):
         # Assert
         assert response.status_code == 302  # Redirection
         assert 'Location' in response.headers
-        # assert response.headers['Location'] == url_for('index', _external=False)
         assert response.headers['Location'].endswith(url_for('index', _external=False))
 
 

@@ -4,13 +4,16 @@ from flask import Flask, render_template, request, redirect, flash, url_for
 
 def loadClubs():
     """Charge et renvoie la liste des clubs à partir du fichier 'clubs.json'."""
+    
     with open('clubs.json') as c:
+        # convertir json en objet python
          listOfClubs = json.load(c)['clubs']
          return listOfClubs
 
 
 def loadCompetitions():
     """Charge et renvoie la liste des compétitions à partir du fichier 'competitions.json'."""
+    
     with open('competitions.json') as comps:
          listOfCompetitions = json.load(comps)['competitions']
          return listOfCompetitions
@@ -29,7 +32,8 @@ def index():
 
 
 class EmailError(Exception):
-    """Exception levée pour les erreurs dans le module club."""
+    """Exception personnalisée pour gérer les erreurs liées aux emails."""
+    
     def __init__(self, email, message="n'a pas été trouvé !"):
         self.email = email
         self.message = message
@@ -41,11 +45,19 @@ class EmailError(Exception):
 
 def get_email(email):
     """Récupère le club à partir de l'email."""
+    
+    # Si l'adresse email est vide
     if not email:
         raise ValueError("L'email ne peut pas être une chaîne vide.")
+    
+    # On parcourt la liste des clubs
     for club in clubs:
+        
+        # Si l'email du club est égale à l'email fournie
         if club['email'] == email:
             return club
+        
+    # Si l'email n'est pas dans la base de données
     raise EmailError(email)
 
 
@@ -54,9 +66,10 @@ def get_email(email):
 @app.route('/showSummary',methods=['POST'])
 def showSummary():
     """
-    Traite la requête POST de la page d'index.
-    Trouve le club à partir de l'email dans les données du formulaire 
-    et rend la page de bienvenue pour ce club.
+    la fonction showSummary traite une requête POST sur l'URL '/showSummary', 
+    tente de trouver le club associé à l'email fourni dans le formulaire de la requête, 
+    et renvoie la page de bienvenue pour ce club. Si elle ne trouve pas le club, 
+    elle affiche un message d'erreur et redirige l'utilisateur vers la page d'index.
     """
     try:
         club = get_email(request.form['email'])
@@ -85,46 +98,58 @@ def book(competition,club):
 def saveClubs(clubs):
     """Sauvegarde la liste des clubs dans le fichier 'clubs.json'."""
     with open('clubs.json', 'w') as c:
-        json.dump({'clubs': clubs}, c)
+        json.dump({'clubs': clubs}, c, indent=4)
 
 def saveCompetitions(competitions):
     """Sauvegarde la liste des compétitions dans le fichier 'competitions.json'."""
     with open('competitions.json', 'w') as comps:
-        json.dump({'competitions': competitions}, comps)
+        json.dump({'competitions': competitions}, comps, indent=4)
 
 
 
 
 @app.route('/purchasePlaces',methods=['POST'])
 def purchasePlaces():
+    
+    # On récupère la compétition, le club et le nombre de places demandées 
+    # à partir des données du formulaire
     competition = [c for c in competitions if c['name'] == request.form['competition']]
     club = [c for c in clubs if c['name'] == request.form['club']]
     placesRequired = int(request.form['places'])
 
+    # Si la compétition ou le club n'existe pas, on renvoie un message d'erreur
     if not competition or not club:
         return "Club ou compétition non trouvé.", 404
 
     competition = competition[0]
     club = club[0]
-
+    
+    # Si le nombre de places demandées est inférieur à zéro
     if placesRequired <= 0:
         flash("Le nombre de places demandées doit être un nombre positif.")
         return render_template('welcome.html', club=club, competitions=competitions), 400
 
+    # Si le nombre de places disponibles est inférieur au nombre de place demandées
     if int(competition['numberOfPlaces']) < placesRequired:
         flash("Pas assez de places disponibles dans la compétition.")
         return render_template('welcome.html', club=club, competitions=competitions), 400
 
+    # Si le club a assez de points pour réserver le nombre de places demandées
     if int(club['points']) < placesRequired:
         flash("Pas assez de points pour réserver ce nombre de places.")
         return render_template('welcome.html', club=club, competitions=competitions), 400
 
-    competition['numberOfPlaces'] = int(competition['numberOfPlaces']) - placesRequired
-    club['points'] = int(club['points']) - placesRequired
+    # Si ok, on déduit le nombre de places demandées du nombre de places disponibles
+    competition['numberOfPlaces'] = str(int(competition['numberOfPlaces']) - placesRequired)
+    
+    # Si ok, on déduit le même nombre de points du club
+    club['points'] = str(int(club['points']) - placesRequired)
 
+    # On sauvegarde les clubs et les compétitions mise à jour 
     saveClubs(clubs)
     saveCompetitions(competitions)
 
+    # Message de succès
     flash('Super ! Réservation réussie!')
     return render_template('welcome.html', club=club, competitions=competitions), 200
 
