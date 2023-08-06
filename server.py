@@ -1,6 +1,9 @@
 import json
 from flask import Flask, render_template, request, redirect, flash, url_for
 
+# Limite de réservation
+BOOKING_LIMIT = 12
+
 
 def loadClubs():
     """Charge et renvoie la liste des clubs à partir du fichier 'clubs.json'."""
@@ -128,16 +131,25 @@ def purchasePlaces():
     if placesRequired <= 0:
         flash("Le nombre de places demandées doit être un nombre positif.")
         return render_template('welcome.html', club=club, competitions=competitions), 400
+    
+
 
     # Si le nombre de places disponibles est inférieur au nombre de place demandées
     if int(competition['numberOfPlaces']) < placesRequired:
         flash("Pas assez de places disponibles dans la compétition.")
         return render_template('welcome.html', club=club, competitions=competitions), 400
+    
+    # Si le nombre de places demandées est supérieur à la limite 
+    if placesRequired > BOOKING_LIMIT:
+        flash(f"Vous ne pouvez pas réserver plus de {BOOKING_LIMIT} places.")
+        return render_template("welcome.html", club=club, competitions=competitions), 400
 
     # Si le club a assez de points pour réserver le nombre de places demandées
     if int(club['points']) < placesRequired:
         flash("Pas assez de points pour réserver ce nombre de places.")
         return render_template('welcome.html', club=club, competitions=competitions), 400
+    
+
 
     # Si ok, on déduit le nombre de places demandées du nombre de places disponibles
     competition['numberOfPlaces'] = str(int(competition['numberOfPlaces']) - placesRequired)
