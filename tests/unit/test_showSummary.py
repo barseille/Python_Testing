@@ -20,7 +20,6 @@ def test_showSummary_valid_email(client, monkeypatch):
         return clubs[0]
     
     monkeypatch.setattr('server.get_email', mock_get_email)
-    # tester = app.test_client()
     email = clubs[0]['email']
 
     # Act
@@ -42,7 +41,6 @@ def test_showSummary_invalid_email(client, monkeypatch):
         raise EmailError('invalid_email@example.com')
     
     monkeypatch.setattr('server.get_email', mock_get_email)
-    # tester = app.test_client()
     app.config['SERVER_NAME'] = 'localhost:5000'
     email = 'invalid_email@example.com'
 

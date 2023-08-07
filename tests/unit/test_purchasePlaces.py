@@ -1,4 +1,3 @@
-
 from server import BOOKING_LIMIT
 
 
@@ -99,7 +98,7 @@ def test_purchasePlaces_exceeding_booking_limit(client):
     data = {
         'club': 'Simply Lift',
         'competition': 'Spring Festival',
-        'places': '13' # Un nombre supérieur à la limite de réservation
+        'places': '13' 
     }
 
     # Act
