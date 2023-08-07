@@ -152,6 +152,15 @@ def purchasePlaces():
 
 @app.route('/book/<competition>/<club>')
 def book(competition, club):
+    """
+    Gère la réservation d'une compétition pour un club donné.
+    
+    - paramètre competition: Nom de la compétition à réserver.
+    - paramètre club: Nom du club effectuant la réservation.
+    - return: Rendu de la page de réservation si la compétition et le club existent et que la compétition n'a pas encore eu lieu.
+              Rendu de la page d'accueil avec un message d'erreur dans les autres cas.
+    """
+    
     foundClub = next((c for c in clubs if c['name'] == club), None)
     foundCompetition = next((c for c in competitions if c['name'] == competition), None)
 
