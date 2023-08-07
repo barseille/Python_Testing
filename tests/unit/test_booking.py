@@ -1,3 +1,17 @@
+def test_book_past_competition(client):
+    """Teste la réservation pour une compétition passée."""
+    # Arrange
+    competition_name = "Fall Classic"
+    club_name = "Iron Temple"
+
+    # Act
+    result = client.get(f"/book/{competition_name}/{club_name}")
+
+    # Assert
+    assert result.status_code == 200
+    assert "Cette compétition a déjà eu lieu. Réservation impossible." in result.data.decode()
+
+
 def test_book_existing_competition_and_club(client):
     """Teste la réservation pour une compétition et un club existants."""
     # Arrange
@@ -12,8 +26,8 @@ def test_book_existing_competition_and_club(client):
     assert competition_name in result.data.decode()
 
 
-def test_book_past_competition(client):
-    """Teste la réservation pour une compétition passée."""
+def test_book_future_competition(client):
+    """Teste la réservation pour une compétition future."""
     # Arrange
     competition_name = "Spring Festival"
     club_name = "Simply Lift"
@@ -23,7 +37,9 @@ def test_book_past_competition(client):
 
     # Assert
     assert result.status_code == 200
-    assert "Cette compétition a déjà eu lieu. Réservation impossible." in result.data.decode()
+    assert competition_name in result.data.decode()
+    # Ajoutez d'autres assertions si nécessaire pour vérifier le comportement attendu
+
 
 
 def test_book_non_existent_competition(client):

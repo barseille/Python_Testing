@@ -66,8 +66,6 @@ def get_email(email):
     raise EmailError(email)
 
 
-
-
 @app.route('/showSummary',methods=['POST'])
 def showSummary():
     """
@@ -82,12 +80,6 @@ def showSummary():
     except EmailError as e:
         flash(str(e))
         return redirect(url_for('index'))
-
-
-
-
-
-
 
 
 def saveClubs(clubs):
