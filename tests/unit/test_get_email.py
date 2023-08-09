@@ -1,15 +1,15 @@
 import pytest
 
-from server import get_email, EmailError, clubs
+from server import get_email, EmailError
 
-def test_get_email_valid():
+def test_get_email_valid(mock_clubs):
     """
     Teste la fonction get_club_by_email avec un email valide.
     La fonction doit retourner le club correspondant à l'email donné.
     """
     
     # Arrange
-    email = clubs[0]['email']
+    email = mock_clubs[0]['email']  
 
     # Act
     club = get_email(email)

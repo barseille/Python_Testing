@@ -82,18 +82,6 @@ def showSummary():
         return redirect(url_for('index'))
 
 
-def saveClubs(clubs):
-    """Sauvegarde la liste des clubs dans le fichier 'clubs.json'."""
-    with open('clubs.json', 'w') as c:
-        json.dump({'clubs': clubs}, c, indent=4)
-
-
-def saveCompetitions(competitions):
-    """Sauvegarde la liste des compétitions dans le fichier 'competitions.json'."""
-    with open('competitions.json', 'w') as comps:
-        json.dump({'competitions': competitions}, comps, indent=4)
-
-
 @app.route('/purchasePlaces', methods=['POST'])
 def purchasePlaces():
     competition = None
@@ -128,7 +116,7 @@ def purchasePlaces():
         flash(f"Vous ne pouvez pas réserver plus de {BOOKING_LIMIT} places.")
         return render_template("welcome.html", club=club, competitions=competitions), 400
 
-    # Si le club a assez de points pour réserver le nombre de places demandées
+    # Si le club n'a pas assez de points pour réserver le nombre de places demandées
     if int(club['points']) < placesRequired:
         flash("Pas assez de points pour réserver ce nombre de places.")
         return render_template('welcome.html', club=club, competitions=competitions), 400
@@ -138,10 +126,6 @@ def purchasePlaces():
 
     # Si ok, on déduit le même nombre de points du club
     club['points'] = str(int(club['points']) - placesRequired)
-
-    # On sauvegarde les clubs et les compétitions mise à jour
-    saveClubs(clubs)
-    saveCompetitions(competitions)
 
     # Message de succès
     flash('Super ! Réservation réussie!')

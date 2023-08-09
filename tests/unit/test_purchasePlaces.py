@@ -1,13 +1,14 @@
 from server import BOOKING_LIMIT
 
 
-def test_purchasePlaces_valid_request(client):
+
+def test_purchasePlaces_valid_request(client, mock_clubs, mock_competitions):
     """Teste une demande de réservation valide."""
     
     # Arrange
     data = {
-        'club': 'Simply Lift',
-        'competition': 'Spring Festival',
+        'club': mock_clubs[0]['name'],  
+        'competition': mock_competitions[0]['name'],  
         'places': '1'
     }
 
@@ -19,13 +20,13 @@ def test_purchasePlaces_valid_request(client):
     assert 'Super ! Réservation réussie!' in response.data.decode()
 
 
-def test_purchasePlaces_not_enough_points(client):
+def test_purchasePlaces_not_enough_points(client, mock_clubs, mock_competitions):
     """Teste une réservation avec un nombre de points insuffisant."""
     
     # Arrange
     data = {
-        'club': 'Iron Temple',
-        'competition': 'Spring Festival',
+        'club': mock_clubs[1]['name'],  
+        'competition': mock_competitions[0]['name'],  
         'places': '6'
     }
 
@@ -37,13 +38,13 @@ def test_purchasePlaces_not_enough_points(client):
     assert "Pas assez de points pour réserver ce nombre de places." in response.data.decode()
 
 
-def test_purchasePlaces_not_enough_places(client):
+def test_purchasePlaces_not_enough_places(client, mock_clubs, mock_competitions):
     """Teste une réservation avec un nombre de places insuffisant dans la compétition."""
     
     # Arrange
     data = {
-        'club': 'Simply Lift',
-        'competition': 'Fall Classic',
+        'club': mock_clubs[0]['name'],  
+        'competition': mock_competitions[1]['name'],  
         'places': '15'
     }
 
@@ -55,13 +56,13 @@ def test_purchasePlaces_not_enough_places(client):
     assert "Pas assez de places disponibles dans la compétition." in response.data.decode()
 
 
-def test_purchasePlaces_invalid_club(client):
+def test_purchasePlaces_invalid_club(client, mock_clubs, mock_competitions):
     """Teste une réservation avec un club non existant."""
     
     # Arrange
     data = {
         'club': 'Nonexistent Club',
-        'competition': 'Spring Festival',
+        'competition': mock_competitions[0]['name'],  
         'places': '1'
     }
 
@@ -73,12 +74,12 @@ def test_purchasePlaces_invalid_club(client):
     assert 'Club ou compétition non trouvé.' in response.data.decode()
 
 
-def test_purchasePlaces_invalid_competition(client):
+def test_purchasePlaces_invalid_competition(client, mock_clubs, mock_competitions):
     """Teste une réservation avec une compétition non existante."""
     
     # Arrange
     data = {
-        'club': 'Simply Lift',
+        'club': mock_clubs[0]['name'],  
         'competition': 'Nonexistent Competition',
         'places': '1'
     }
@@ -91,13 +92,13 @@ def test_purchasePlaces_invalid_competition(client):
     assert 'Club ou compétition non trouvé.' in response.data.decode()
 
 
-def test_purchasePlaces_exceeding_booking_limit(client):
+def test_purchasePlaces_exceeding_booking_limit(client, mock_clubs, mock_competitions):
     """Teste une réservation dépassant la limite de réservation."""
     
     # Arrange
     data = {
-        'club': 'Simply Lift',
-        'competition': 'Spring Festival',
+        'club': mock_clubs[0]['name'],  
+        'competition': mock_competitions[0]['name'],  
         'places': '13' 
     }
 
@@ -109,13 +110,13 @@ def test_purchasePlaces_exceeding_booking_limit(client):
     assert f"Vous ne pouvez pas réserver plus de {BOOKING_LIMIT} places." in response.data.decode()
     
     
-def test_purchasePlaces_negative_or_zero_places(client):
+def test_purchasePlaces_negative_or_zero_places(client, mock_clubs, mock_competitions):
     """Teste une réservation avec un nombre de places négatif ou nul."""
     
     # Arrange
     data = {
-        'club': 'Simply Lift',
-        'competition': 'Spring Festival',
+        'club': mock_clubs[0]['name'],  
+        'competition': mock_competitions[0]['name'],  
         'places': '0' 
     }
 

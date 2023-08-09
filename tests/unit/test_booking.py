@@ -1,10 +1,9 @@
-def test_book_past_competition(client):
+def test_book_past_competition(client, mock_clubs, mock_competitions):
     """Teste la réservation pour une compétition passée."""
     
     # Arrange
-    competition_name = "Fall Classic"
-    club_name = "Iron Temple"
-
+    competition_name = mock_competitions[1]['name']  
+    club_name = mock_clubs[1]['name']  
     # Act
     result = client.get(f"/book/{competition_name}/{club_name}")
 
@@ -13,13 +12,12 @@ def test_book_past_competition(client):
     assert "Cette compétition a déjà eu lieu. Réservation impossible." in result.data.decode()
 
 
-def test_book_existing_competition_and_club(client):
+def test_book_existing_competition_and_club(client, mock_clubs, mock_competitions):
     """Teste la réservation pour une compétition et un club existants."""
     
     # Arrange
-    competition_name = "Spring Festival"
-    club_name = "Simply Lift"
-
+    competition_name = mock_competitions[0]['name']  
+    club_name = mock_clubs[0]['name']  
     # Act
     result = client.get(f"/book/{competition_name}/{club_name}")
 
@@ -28,30 +26,26 @@ def test_book_existing_competition_and_club(client):
     assert competition_name in result.data.decode()
 
 
-def test_book_future_competition(client):
+def test_book_future_competition(client, mock_clubs, mock_competitions):
     """Teste la réservation pour une compétition future."""
     
     # Arrange
-    competition_name = "Spring Festival"
-    club_name = "Simply Lift"
-
+    competition_name = mock_competitions[0]['name']  
+    club_name = mock_clubs[0]['name']  
     # Act
     result = client.get(f"/book/{competition_name}/{club_name}")
 
     # Assert
     assert result.status_code == 200
     assert competition_name in result.data.decode()
-    # Ajoutez d'autres assertions si nécessaire pour vérifier le comportement attendu
 
 
-
-def test_book_non_existent_competition(client):
+def test_book_non_existent_competition(client, mock_clubs, mock_competitions):
     """Teste la réservation pour une compétition inexistante."""
     
     # Arrange
     competition_name = "NonExistentCompetition"
-    club_name = "Simply Lift"
-
+    club_name = mock_clubs[0]['name']  
     # Act
     result = client.get(f"/book/{competition_name}/{club_name}")
 
@@ -60,11 +54,11 @@ def test_book_non_existent_competition(client):
     assert "Erreur - veuillez réessayer" in result.data.decode()
 
 
-def test_book_non_existent_club(client):
+def test_book_non_existent_club(client, mock_clubs, mock_competitions):
     """Teste la réservation pour un club inexistant."""
     
     # Arrange
-    competition_name = "Spring Festival"
+    competition_name = mock_competitions[0]['name']  
     club_name = "NonExistentClub"
 
     # Act
