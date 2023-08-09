@@ -76,7 +76,11 @@ def showSummary():
     """
     try:
         club = get_email(request.form['email'])
-        return render_template('welcome.html',club=club,competitions=competitions)
+        # Convertir les dates des compétitions en objets datetime
+        for comp in competitions:
+            comp['date'] = datetime.strptime(comp['date'], '%Y-%m-%d %H:%M:%S')
+
+        return render_template('welcome.html',club=club,competitions=competitions, now=datetime.now())
     except EmailError as e:
         flash(str(e))
         return redirect(url_for('index'))
@@ -144,11 +148,22 @@ def book(competition, club):
               Rendu de la page d'accueil avec un message d'erreur dans les autres cas.
     """
     
-    foundClub = next((c for c in clubs if c['name'] == club), None)
-    foundCompetition = next((c for c in competitions if c['name'] == competition), None)
+    # foundClub = next((c for c in clubs if c['name'] == club), None)
+    # foundCompetition = next((c for c in competitions if c['name'] == competition), None)
+    foundClub = None
+    for c in clubs:
+        if c['name'] == club:
+            foundClub = c
+            break
+
+    foundCompetition = None
+    for c in competitions:
+        if c['name'] == competition:
+            foundCompetition = c
+            break
 
     if foundClub and foundCompetition:
-        competition_date = datetime.strptime(foundCompetition['date'], '%Y-%m-%d %H:%M:%S')
+        competition_date = foundCompetition['date']
         if competition_date < datetime.now():
             flash("Cette compétition a déjà eu lieu. Réservation impossible.")
             return render_template('welcome.html', club=foundClub, competitions=competitions)
