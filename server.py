@@ -23,8 +23,12 @@ def loadCompetitions():
     """Charge et renvoie la liste des compétitions à partir du fichier 'competitions.json'."""
     
     with open('competitions.json') as comps:
-         listOfCompetitions = json.load(comps)['competitions']
-         return listOfCompetitions
+        listOfCompetitions = json.load(comps)['competitions']
+        # Convertir les dates en objets datetime
+        for comp in listOfCompetitions:
+            comp['date'] = datetime.strptime(comp['date'], '%Y-%m-%d %H:%M:%S')
+        return listOfCompetitions
+
 
 
 competitions = loadCompetitions()
@@ -77,9 +81,9 @@ def showSummary():
     try:
         club = get_email(request.form['email'])
         # Convertir les dates des compétitions en objets datetime
-        for comp in competitions:
-            # conversion de str > objet date
-            comp['date'] = datetime.strptime(comp['date'], '%Y-%m-%d %H:%M:%S')
+        # for comp in competitions:
+        #     # conversion de str > objet date
+        #     comp['date'] = datetime.strptime(comp['date'], '%Y-%m-%d %H:%M:%S')
 
         return render_template('welcome.html',club=club,competitions=competitions, now=datetime.now())
     except EmailError as e:
@@ -169,15 +173,17 @@ def book(competition, club):
             foundCompetition = c
             break
 
+    now = datetime.now()
+    
     if foundClub and foundCompetition:
         competition_date = foundCompetition['date']
-        if competition_date < datetime.now():
+        if competition_date < now:
             flash("Cette compétition a déjà eu lieu. Réservation impossible.")
-            return render_template('welcome.html', club=foundClub, competitions=competitions)
+            return render_template('welcome.html', club=foundClub, competitions=competitions, now=now)
         return render_template('booking.html', club=foundClub, competition=foundCompetition)
     else:
         flash("Erreur - veuillez réessayer")
-        return render_template('welcome.html', club=foundClub, competitions=competitions)
+        return render_template('welcome.html', club=foundClub, competitions=competitions, now=now)
 
 
 @app.route('/points_clubs', methods=['GET'])
@@ -186,12 +192,7 @@ def points_clubs():
     return render_template('points_clubs.html', clubs=clubs)
 
 
-
 @app.route('/logout')
 def logout():
     """Déconnecte l'utilisateur et redirige vers la page d'index."""
     return redirect(url_for('index'))
-
-
-
-
