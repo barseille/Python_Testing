@@ -1,7 +1,6 @@
 from server import BOOKING_LIMIT
 
 
-
 def test_purchasePlaces_valid_request(client, mock_clubs, mock_competitions):
     """Teste une demande de réservation valide."""
     

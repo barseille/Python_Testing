@@ -16,7 +16,6 @@ competitions = [
     {"name": "Fall Classic", "date": datetime.strptime("2020-10-22 13:30:00", '%Y-%m-%d %H:%M:%S'), "numberOfPlaces": "13"},
 ]
 
-
 @pytest.fixture
 def mock_clubs():
     return clubs

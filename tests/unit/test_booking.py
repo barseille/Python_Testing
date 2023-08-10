@@ -67,3 +67,5 @@ def test_book_non_existent_club(client, mock_clubs, mock_competitions):
     # Assert
     assert result.status_code == 200
     assert "Erreur - veuillez réessayer" in result.data.decode()
+
+

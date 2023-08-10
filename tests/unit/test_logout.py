@@ -1,12 +1,14 @@
 from flask import url_for
 
-
 def test_logout(client):
-    # Appelle la route de déconnexion
+    """
+    Teste la route de déconnexion pour s'assurer qu'elle renvoie une redirection (code de statut 302)
+    vers la page d'index.
+    """
+
+    # Act : 
     response = client.get('/logout')
 
-    # Vérifie que le code de statut est 302, ce qui indique une redirection
-    assert response.status_code == 302
-
-    # Vérifie que l'URL de redirection est l'URL de la page d'index
+    # Assert : 
+    assert response.status_code == 302  # Redirection
     assert response.location.endswith(url_for('index'))

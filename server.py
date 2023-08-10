@@ -188,7 +188,6 @@ def book(competition, club):
 
 @app.route('/points_clubs', methods=['GET'])
 def points_clubs():
-    # Utiliser la variable clubs déjà chargée
     return render_template('points_clubs.html', clubs=clubs)
 
 
