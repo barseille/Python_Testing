@@ -78,12 +78,14 @@ def showSummary():
         club = get_email(request.form['email'])
         # Convertir les dates des compétitions en objets datetime
         for comp in competitions:
+            # conversion de str > objet date
             comp['date'] = datetime.strptime(comp['date'], '%Y-%m-%d %H:%M:%S')
 
         return render_template('welcome.html',club=club,competitions=competitions, now=datetime.now())
     except EmailError as e:
         flash(str(e))
         return redirect(url_for('index'))
+
 
 
 @app.route('/purchasePlaces', methods=['POST'])
@@ -103,27 +105,34 @@ def purchasePlaces():
     if competition is None or club is None:
         return "Club ou compétition non trouvé.", 404
 
-    placesRequired = int(request.form['places'])
+    placesRequired_str = request.form['places']
+    if placesRequired_str == '':
+        flash("Veuillez entrer un nombre de places valide.")
+        return render_template('welcome.html', club=club, competitions=competitions, now=datetime.now()), 400
+
+    placesRequired = int(placesRequired_str)  # Conversion après vérification
+
+    now = datetime.now()
 
     # Si le nombre de places demandées est inférieur à zéro
     if placesRequired <= 0:
         flash("Le nombre de places demandées doit être un nombre positif.")
-        return render_template('welcome.html', club=club, competitions=competitions), 400
+        return render_template('welcome.html', club=club, competitions=competitions, now=now), 400
 
     # Si le nombre de places disponibles est inférieur au nombre de place demandées
     if int(competition['numberOfPlaces']) < placesRequired:
         flash("Pas assez de places disponibles dans la compétition.")
-        return render_template('welcome.html', club=club, competitions=competitions), 400
+        return render_template('welcome.html', club=club, competitions=competitions, now=now), 400
 
     # Si le nombre de places demandées est supérieur à la limite
     if placesRequired > BOOKING_LIMIT:
         flash(f"Vous ne pouvez pas réserver plus de {BOOKING_LIMIT} places.")
-        return render_template("welcome.html", club=club, competitions=competitions), 400
+        return render_template("welcome.html", club=club, competitions=competitions, now=now), 400
 
     # Si le club n'a pas assez de points pour réserver le nombre de places demandées
     if int(club['points']) < placesRequired:
         flash("Pas assez de points pour réserver ce nombre de places.")
-        return render_template('welcome.html', club=club, competitions=competitions), 400
+        return render_template('welcome.html', club=club, competitions=competitions, now=now), 400
 
     # Si ok, on déduit le nombre de places demandées du nombre de places disponibles
     competition['numberOfPlaces'] = str(int(competition['numberOfPlaces']) - placesRequired)
@@ -133,7 +142,7 @@ def purchasePlaces():
 
     # Message de succès
     flash('Super ! Réservation réussie!')
-    return render_template('welcome.html', club=club, competitions=competitions), 200
+    return render_template('welcome.html', club=club, competitions=competitions, now=datetime.now()), 200
 
 
 @app.route('/book/<competition>/<club>')
@@ -147,9 +156,7 @@ def book(competition, club):
               et que la compétition n'a pas encore eu lieu.
               Rendu de la page d'accueil avec un message d'erreur dans les autres cas.
     """
-    
-    # foundClub = next((c for c in clubs if c['name'] == club), None)
-    # foundCompetition = next((c for c in competitions if c['name'] == competition), None)
+
     foundClub = None
     for c in clubs:
         if c['name'] == club:
@@ -173,7 +180,18 @@ def book(competition, club):
         return render_template('welcome.html', club=foundClub, competitions=competitions)
 
 
+@app.route('/points_clubs', methods=['GET'])
+def points_clubs():
+    # Utiliser la variable clubs déjà chargée
+    return render_template('points_clubs.html', clubs=clubs)
+
+
+
 @app.route('/logout')
 def logout():
     """Déconnecte l'utilisateur et redirige vers la page d'index."""
     return redirect(url_for('index'))
+
+
+
+

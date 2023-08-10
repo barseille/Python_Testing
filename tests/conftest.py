@@ -41,10 +41,13 @@ clubs = [
     {"name": "She Lifts", "email": "kate@shelifts.co.uk", "points": "12"},
 ]
 
+
+from datetime import datetime
+
 # Compétitions fictives
 competitions = [
-    {"name": "Spring Festival", "date": "2027-03-27 10:00:00", "numberOfPlaces": "25"},
-    {"name": "Fall Classic", "date": "2020-10-22 13:30:00", "numberOfPlaces": "13"},
+    {"name": "Spring Festival", "date": datetime.strptime("2027-03-27 10:00:00", '%Y-%m-%d %H:%M:%S'), "numberOfPlaces": "25"},
+    {"name": "Fall Classic", "date": datetime.strptime("2020-10-22 13:30:00", '%Y-%m-%d %H:%M:%S'), "numberOfPlaces": "13"},
 ]
 
 @pytest.fixture

@@ -1,0 +1,16 @@
+<table>
+    <thead>
+        <tr>
+            <th>Club</th>
+            <th>Points Disponibles</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for club in clubs %}
+        <tr>
+            <td>{{ club.name }}</td>
+            <td>{{ club.points }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
