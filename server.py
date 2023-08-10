@@ -30,9 +30,9 @@ def loadCompetitions():
         return listOfCompetitions
 
 
-
 competitions = loadCompetitions()
 clubs = loadClubs()
+
 
 @app.route('/')
 def index():
@@ -80,16 +80,11 @@ def showSummary():
     """
     try:
         club = get_email(request.form['email'])
-        # Convertir les dates des compétitions en objets datetime
-        # for comp in competitions:
-        #     # conversion de str > objet date
-        #     comp['date'] = datetime.strptime(comp['date'], '%Y-%m-%d %H:%M:%S')
 
         return render_template('welcome.html',club=club,competitions=competitions, now=datetime.now())
     except EmailError as e:
         flash(str(e))
         return redirect(url_for('index'))
-
 
 
 @app.route('/purchasePlaces', methods=['POST'])
