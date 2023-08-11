@@ -43,6 +43,4 @@ def test_showSummary_invalid_email(client, monkeypatch, mock_clubs):
 
         # Assert
         assert response.status_code == 302  # Redirection
-        # assert 'Location' in response.headers
-        # assert response.headers['Location'].endswith(url_for('index', _external=False))
         assert response.location.endswith(url_for('index', _external=False))

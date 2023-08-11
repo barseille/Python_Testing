@@ -38,5 +38,3 @@ def client(monkeypatch):
     monkeypatch.setattr('server.competitions', competitions)
     with app.test_client() as client:
         yield client
-
-

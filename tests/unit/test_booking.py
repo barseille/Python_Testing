@@ -10,7 +10,6 @@ def test_book_past_competition(client, mock_clubs, mock_competitions):
     # Assert
     assert result.status_code == 200
     assert competition_name in result.data.decode()
-    # assert "Cette compétition a déjà eu lieu. Réservation impossible." in result.data.decode()
 
 
 def test_book_existing_competition_and_club(client, mock_clubs, mock_competitions):

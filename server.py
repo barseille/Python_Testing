@@ -149,68 +149,6 @@ def purchasePlaces():
     return render_template('welcome.html', club=club, competitions=competitions, now=now), 400
 
 
-# @app.route('/purchasePlaces', methods=['POST'])
-# def purchasePlaces():
-#     """
-#     Affiche les informations sur la réservation des places à une compétition sur la page welcome.html
-#     et met à jour le nombre de places et de points si la réservation est réussie.
-#     Si aucunes erreur est levée.
-#     """
-    
-#     competition = None
-#     for c in competitions:
-#         if c['name'] == request.form['competition']:
-#             competition = c
-#             break
-
-#     club = None
-#     for c in clubs:
-#         if c['name'] == request.form['club']:
-#             club = c
-#             break
-
-#     if competition is None or club is None:
-#         return "Club ou compétition non trouvé.", 404
-
-#     placesRequired_str = request.form['places']
-#     if placesRequired_str == '':
-#         flash("Veuillez entrer un nombre de places valide.")
-#         return render_template('welcome.html', club=club, competitions=competitions, now=datetime.now()), 400
-
-#     placesRequired = int(placesRequired_str)  
-#     now = datetime.now()
-
-#     # Si le nombre de places demandées est inférieur à zéro
-#     if placesRequired <= 0:
-#         flash("Le nombre de places demandées doit être un nombre positif.")
-#         return render_template('welcome.html', club=club, competitions=competitions, now=now), 400
-
-#     # Si le nombre de places disponibles est inférieur au nombre de place demandées
-#     if int(competition['numberOfPlaces']) < placesRequired:
-#         flash("Pas assez de places disponibles dans la compétition.")
-#         return render_template('welcome.html', club=club, competitions=competitions, now=now), 400
-
-#     # Si le nombre de places demandées est supérieur à la limite
-#     if placesRequired > BOOKING_LIMIT:
-#         flash(f"Vous ne pouvez pas réserver plus de {BOOKING_LIMIT} places.")
-#         return render_template("welcome.html", club=club, competitions=competitions, now=now), 400
-
-#     # Si le club n'a pas assez de points pour réserver le nombre de places demandées
-#     if int(club['points']) < placesRequired:
-#         flash("Pas assez de points pour réserver ce nombre de places.")
-#         return render_template('welcome.html', club=club, competitions=competitions, now=now), 400
-
-#     # Si ok, on déduit le nombre de places demandées du nombre de places disponibles
-#     competition['numberOfPlaces'] = str(int(competition['numberOfPlaces']) - placesRequired)
-
-#     # Si ok, on déduit le même nombre de points du club
-#     club['points'] = str(int(club['points']) - placesRequired)
-
-#     # Message de succès
-#     flash('Super ! Réservation réussie!')
-#     return render_template('welcome.html', club=club, competitions=competitions, now=datetime.now()), 200
-
-
 @app.route('/book/<competition>/<club>')
 def book(competition, club):
     """
@@ -237,16 +175,6 @@ def book(competition, club):
             break
 
     now = datetime.now()
-    
-    # if foundClub and foundCompetition:
-    #     competition_date = foundCompetition['date']
-    #     if competition_date < now:
-    #         flash("Cette compétition a déjà eu lieu. Réservation impossible.")
-    #         return render_template('welcome.html', club=foundClub, competitions=competitions, now=now)
-    #     return render_template('booking.html', club=foundClub, competition=foundCompetition)
-    # else:
-    #     flash("Erreur - veuillez réessayer")
-    #     return render_template('welcome.html', club=foundClub, competitions=competitions, now=now)
     
     if foundClub and foundCompetition:
         return render_template('booking.html', club=foundClub, competition=foundCompetition)
