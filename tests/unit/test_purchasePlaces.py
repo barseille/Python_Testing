@@ -55,7 +55,7 @@ def test_purchasePlaces_not_enough_places(client, mock_clubs, mock_competitions)
     assert "Pas assez de places disponibles dans la compétition." in response.data.decode()
 
 
-def test_purchasePlaces_invalid_club(client, mock_clubs, mock_competitions):
+def test_purchasePlaces_invalid_club(client, mock_competitions):
     """Teste une réservation avec un club non existant."""
     
     # Arrange
@@ -70,10 +70,10 @@ def test_purchasePlaces_invalid_club(client, mock_clubs, mock_competitions):
 
     # Assert
     assert response.status_code == 404
-    assert 'Club ou compétition non trouvé.' in response.data.decode()
+    assert 'Erreur. Veuillez saisir un nombre de places valides' in response.data.decode()
 
 
-def test_purchasePlaces_invalid_competition(client, mock_clubs, mock_competitions):
+def test_purchasePlaces_invalid_competition(client, mock_clubs):
     """Teste une réservation avec une compétition non existante."""
     
     # Arrange
@@ -88,7 +88,7 @@ def test_purchasePlaces_invalid_competition(client, mock_clubs, mock_competition
 
     # Assert
     assert response.status_code == 404
-    assert 'Club ou compétition non trouvé.' in response.data.decode()
+    assert 'Erreur. Veuillez saisir un nombre de places valides' in response.data.decode()
 
 
 def test_purchasePlaces_exceeding_booking_limit(client, mock_clubs, mock_competitions):

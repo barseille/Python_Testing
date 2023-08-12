@@ -63,7 +63,7 @@ def get_email(email):
     
     # Si l'adresse email est vide
     if not email:
-        raise ValueError("L'email ne peut pas être une chaîne vide.")
+        raise ValueError("Veuillez entrer un email valide.")
     
     # On parcourt la liste des clubs
     for club in clubs:
@@ -88,11 +88,12 @@ def showSummary():
 
     try:
         club = get_email(request.form['email'])
-
         return render_template('welcome.html',club=club,competitions=competitions, now=datetime.now())
-    except EmailError as e:
+    
+    except (EmailError, ValueError) as e: 
         flash(str(e))
-        return redirect(url_for('index'))
+        return redirect(url_for('index')) 
+
 
 
 @app.route('/purchasePlaces', methods=['POST'])
@@ -120,7 +121,7 @@ def purchasePlaces():
 
     # Vérifier si la compétition et le club existent
     if competition is None or club is None or places_required_str == '':
-        flash("Club ou compétition non trouvé.")
+        flash("Erreur. Veuillez saisir un nombre de places valides.")
         return render_template('welcome.html', club=club, competitions=competitions, now=now), 404
 
     places_required = int(places_required_str)

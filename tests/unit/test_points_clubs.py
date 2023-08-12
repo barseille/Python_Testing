@@ -4,14 +4,13 @@ def test_points_clubs(client, mock_clubs):
     et contient les noms de tous les clubs dans la réponse.
     """
     # Arrange 
-    expected_status_code = 200
     expected_club_names = [club['name'].encode() for club in mock_clubs]
 
     # Act
     response = client.get('/points_clubs')
 
     # Assert 
-    assert response.status_code == expected_status_code
+    assert response.status_code == 200
     for club_name in expected_club_names:
         assert club_name in response.data
 

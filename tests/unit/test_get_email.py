@@ -4,8 +4,7 @@ from server import get_email, EmailError
 
 def test_get_email_valid(mock_clubs):
     """
-    Teste la fonction get_club_by_email avec un email valide.
-    La fonction doit retourner le club correspondant à l'email donné.
+    Tester si la fonction get_email retourne le club correspondant à un e-mail valide.
     """
     
     # Arrange
@@ -14,7 +13,7 @@ def test_get_email_valid(mock_clubs):
     # Act
     club = get_email(email)
 
-    # Assert
+    # Assert : Le club retourné doit avoir le même e-mail que celui fourni.
     assert club['email'] == email
 
 
@@ -24,10 +23,10 @@ def test_get_email_invalid():
     La fonction doit lever une exception EmailError.
     """
     
-    # Arrange
+    # Arrange : email fictif
     email = 'email_invalide@gmail.com'
 
-    # Act & Assert
+    # Act & Assert : Une exception EmailError doit être levée.
     with pytest.raises(EmailError):
         get_email(email)
 
@@ -38,7 +37,7 @@ def test_get_email_empty():
     La fonction doit lever une exception ValueError.
     """
     
-    # Arrange
+    # Arrange : formulaire vide
     email = ''
 
     # Act & Assert
