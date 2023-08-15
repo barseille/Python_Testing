@@ -168,9 +168,10 @@ def book(competition, club):
             break
 
     now = datetime.now()
+    limit = min(int(foundClub['points']), BOOKING_LIMIT)
     
     if foundClub and foundCompetition:
-        return render_template('booking.html', club=foundClub, competition=foundCompetition)
+        return render_template('booking.html', club=foundClub, competition=foundCompetition, limit=limit)
     else:
         flash("Erreur - veuillez réessayer")
         return render_template('welcome.html', club=foundClub, competitions=competitions, now=datetime.now())
