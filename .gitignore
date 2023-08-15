@@ -4,3 +4,13 @@ lib
 .Python
 .envrc
 __pycache__
+
+# Environments
+env
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
