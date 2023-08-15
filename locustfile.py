@@ -37,28 +37,3 @@ class GoodLift(HttpUser):
 
 
 
-# from locust import HttpUser, task, between
-
-# class GoodLift(HttpUser):
-#     host = "http://127.0.0.1:5000"
-#     wait_time = between(1, 5)
-
-#     @task
-#     def index(self):        
-#         self.client.get("/")
-
-#     @task
-#     def show_summary(self):
-#         self.client.post("/showSummary", data={'email': 'john@simplylift.co'})
-
-#     @task
-#     def book(self):
-#         self.client.get("/book/Spring%20Festival/Simply%20Lift")
-
-#     @task
-#     def purchase_place(self):
-#         self.client.post("/purchasePlaces", data={'competition': 'Spring Festival', 'club': 'Simply Lift', 'places': '4' })
-
-#     @task
-#     def logout(self):        
-#         self.client.get("/logout")
