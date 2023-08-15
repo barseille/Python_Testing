@@ -1,3 +1,6 @@
+from flask import url_for
+
+
 def test_complete_booking_flow(client, mock_clubs, mock_competitions):
     
     # Sélection du club "Simply Lift" pour le test
@@ -41,3 +44,9 @@ def test_complete_booking_flow(client, mock_clubs, mock_competitions):
     # Vérifie si le nombre de places disponibles pour la compétition a été correctement déduit après la réservation
     assert int(test_competition['numberOfPlaces']) == original_competition_places - places_required
 
+    # Simule la déconnexion
+    response = client.get('/logout')
+    assert response.status_code == 302 # Redirection vers la page d'index
+
+    # Vérifie que l'utilisateur est redirigé vers la page d'index
+    assert response.location.endswith(url_for('index'))
