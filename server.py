@@ -171,42 +171,6 @@ def book(competition, club):
     return render_template('booking.html', club=foundClub, competition=foundCompetition, limit=limit)
 
 
-
-# @app.route('/book/<competition>/<club>')
-# def book(competition, club):
-#     """
-#     Page de formulaire de réservation des places
-#     """
-#     """
-#     Page de formulaire de réservation des places.
-#     Les paramètres 'competition' et 'club' sont extraits de l'URL et utilisés pour trouver
-#     la compétition et le club correspondants.
-#     Renvoie la page de réservation si la compétition et le club existent et que la compétition n'a pas encore eu lieu.
-#     Renvoie la page d'accueil avec un message d'erreur dans les autres cas.
-#     """
-
-#     foundClub = None
-#     for c in clubs:
-#         if c['name'] == club:
-#             foundClub = c
-#             break
-
-#     foundCompetition = None
-#     for c in competitions:
-#         if c['name'] == competition:
-#             foundCompetition = c
-#             break
-
-#     now = datetime.now()
-#     limit = min(int(foundClub['points']), BOOKING_LIMIT)
-    
-#     if foundClub and foundCompetition:
-#         return render_template('booking.html', club=foundClub, competition=foundCompetition, limit=limit)
-#     else:
-#         flash("Erreur - veuillez réessayer")
-#         return render_template('welcome.html', club=foundClub, competitions=competitions, now=datetime.now())
-
-
 @app.route('/points_clubs', methods=['GET'])
 def points_clubs():
     return render_template('points_clubs.html', clubs=clubs)
