@@ -139,6 +139,7 @@ def purchasePlaces():
     flash('Super ! Réservation réussie!')
     return render_template('welcome.html', club=club, competitions=competitions, now=now), 200
 
+
 @app.route('/book/<competition>/<club>')
 def book(competition, club):
     """
@@ -160,8 +161,6 @@ def book(competition, club):
         if c['name'] == competition:
             foundCompetition = c
             break
-
-    now = datetime.now()
 
     if foundClub is None or foundCompetition is None:
         flash("Erreur - Club ou compétition non trouvés, veuillez réessayer")
