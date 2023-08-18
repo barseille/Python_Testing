@@ -98,7 +98,7 @@ def showSummary():
         return redirect(url_for('index')) 
 
 
-def validate_purchase(competition, club, places_required):
+def validate_purchase(club, places_required):
     """
     Valide la demande de réservation de places pour une compétition par un club :
      
@@ -110,13 +110,10 @@ def validate_purchase(competition, club, places_required):
     if places_required <= 0:
         return "Le nombre de places demandées doit être un nombre positif."
     
-    elif int(competition['numberOfPlaces']) < places_required:
-        return "Pas assez de places disponibles dans la compétition."
-    
     elif places_required > BOOKING_LIMIT:
         return f"Vous ne pouvez pas réserver plus de {BOOKING_LIMIT} places."
     
-    elif int(club['points']) < places_required:
+    elif places_required > int(club['points']):
         return "Pas assez de points pour réserver ce nombre de places."
     
     # S'il n'y a pas d'erreurs dans la validation, 
@@ -157,7 +154,7 @@ def purchasePlaces():
         return render_template('welcome.html', club=club, competitions=competitions, now=now), 404
 
     places_required = int(places_required_str)
-    error_message = validate_purchase(competition, club, places_required)
+    error_message = validate_purchase(club, places_required)
     
     if error_message:
         flash(error_message)

@@ -1,6 +1,13 @@
 from server import loadClubs
 
 def test_loadClubs():
+    """ 
+    Objectif : Tester la fonction loadClubs pour s'assurer qu'elle charge correctement les clubs.
+
+    Ce test vérifie que la fonction loadClubs renvoie :
+    - le premier club dans la liste a le nom "Simply Lift"
+    - la longueur de la liste des clubs est de 3
+    """
     
     # Arrange : 
     first_club_name = "Simply Lift"
