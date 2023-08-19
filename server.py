@@ -6,6 +6,9 @@ from flask import Flask, render_template, request, redirect, flash, url_for
 # Limite de réservation
 BOOKING_LIMIT = 12
 
+# Date actuelle
+now=datetime.now()
+
 app = Flask(__name__)
 app.secret_key = 'something_special'
 
@@ -20,7 +23,10 @@ def loadClubs():
 
 
 def loadCompetitions():
-    """Charge et renvoie la liste des compétitions à partir du fichier 'competitions.json'."""
+    """
+    Charge et renvoie la liste des compétitions à partir du fichier 'competitions.json'.
+    Convertit également les dates en objets datetime.
+    """
     
     with open('competitions.json') as comps:
         listOfCompetitions = json.load(comps)['competitions']
@@ -30,13 +36,13 @@ def loadCompetitions():
         return listOfCompetitions
 
 
-
 competitions = loadCompetitions()
 clubs = loadClubs()
 
+
 @app.route('/')
 def index():
-    """Retourne la page d'index."""
+    """Retourne la page d'index (connexion par email)"""
     return render_template('index.html')
 
 
@@ -53,11 +59,14 @@ class EmailError(Exception):
 
 
 def get_email(email):
-    """Récupère le club à partir de l'email."""
+    """
+    Récupère le club à partir de l'email.
+    Lève une EmailError si l'email n'est pas trouvé dans la liste des clubs.
+    """
     
     # Si l'adresse email est vide
     if not email:
-        raise ValueError("L'email ne peut pas être une chaîne vide.")
+        raise ValueError("Veuillez entrer un email valide.")
     
     # On parcourt la liste des clubs
     for club in clubs:
@@ -66,129 +75,143 @@ def get_email(email):
         if club['email'] == email:
             return club
         
-    # Si l'email n'est pas dans la base de données
+    # Si l'email n'est pas dans la base de données, on lève une exception personnalisée
     raise EmailError(email)
 
 
 @app.route('/showSummary',methods=['POST'])
 def showSummary():
     """
-    la fonction showSummary traite une requête POST sur l'URL '/showSummary', 
-    tente de trouver le club associé à l'email fourni dans le formulaire de la requête, 
-    et renvoie la page de bienvenue pour ce club. Si elle ne trouve pas le club, 
-    elle affiche un message d'erreur et redirige l'utilisateur vers la page d'index.
+    Page welcome.html après connexion par l'email via la page index.html, 
+    on affiche :
+    - le nombre de point disponible du club
+    - la liste des compétitions avec lien de réservation
+    Si l'email non trouvé, redirection vers la page d'index avec un message d'erreur
     """
+
     try:
         club = get_email(request.form['email'])
-        # Convertir les dates des compétitions en objets datetime
-        # for comp in competitions:
-        #     # conversion de str > objet date
-        #     comp['date'] = datetime.strptime(comp['date'], '%Y-%m-%d %H:%M:%S')
-
-        return render_template('welcome.html',club=club,competitions=competitions, now=datetime.now())
-    except EmailError as e:
+        return render_template('welcome.html',club=club,competitions=competitions, now=now)
+    
+    except (EmailError, ValueError) as e: 
         flash(str(e))
-        return redirect(url_for('index'))
+        return redirect(url_for('index')) 
 
+
+def validate_purchase(club, places_required):
+    """
+    Valide la demande de réservation de places pour une compétition par un club :
+     
+    - competition: nombre de places dans la compétition
+    - club: nombre de places que le club dispose
+    - places_required: nombre de places que le club souhaite réserver.
+    """
+    
+    if places_required <= 0:
+        return "Le nombre de places demandées doit être un nombre positif."
+    
+    elif places_required > BOOKING_LIMIT:
+        return f"Vous ne pouvez pas réserver plus de {BOOKING_LIMIT} places."
+    
+    elif places_required > int(club['points']):
+        return "Pas assez de points pour réserver ce nombre de places."
+    
+    # S'il n'y a pas d'erreurs dans la validation, 
+    # la fonction retourne 'None', indiquant que la réservation est valide
+    return None
 
 
 @app.route('/purchasePlaces', methods=['POST'])
 def purchasePlaces():
-    competition = None
+    """
+    Gère l'achat de places pour une compétition donnée par un club.
+    
+    - Récupère le nom de la compétition, le nom du club et le nombre de places demandées à partir du formulaire.
+    - Valide la demande d'achat en vérifiant la disponibilité des places et les points du club.
+    - Met à jour le nombre de places disponibles pour la compétition et les points du club.
+    - Renvoie un message de succès ou d'erreur selon le résultat de l'opération.
+
+    Rendu dans le template 'welcome.html' avec le résultat de l'opération.
+    """
+    
+    competition_name = request.form['competition']
+    club_name = request.form['club']
+    places_required_str = request.form['places']
+    
+    competition, club = None, None
     for c in competitions:
-        if c['name'] == request.form['competition']:
+        if c['name'] == competition_name:
             competition = c
             break
-
-    club = None
     for c in clubs:
-        if c['name'] == request.form['club']:
+        if c['name'] == club_name:
             club = c
             break
 
-    if competition is None or club is None:
-        return "Club ou compétition non trouvé.", 404
+    # Si la compétition, le club, ou le nombre de places requis sont introuvables, on affiche une erreur
+    if competition is None or club is None or places_required_str == '':
+        flash("Erreur. Veuillez saisir un nombre de places valides.")
+        return render_template('welcome.html', club=club, competitions=competitions, now=now), 404
 
-    placesRequired_str = request.form['places']
-    if placesRequired_str == '':
-        flash("Veuillez entrer un nombre de places valide.")
-        return render_template('welcome.html', club=club, competitions=competitions, now=datetime.now()), 400
-
-    placesRequired = int(placesRequired_str)  # Conversion après vérification
-
-    now = datetime.now()
-
-    # Si le nombre de places demandées est inférieur à zéro
-    if placesRequired <= 0:
-        flash("Le nombre de places demandées doit être un nombre positif.")
+    places_required = int(places_required_str)
+    error_message = validate_purchase(club, places_required)
+    
+    if error_message:
+        flash(error_message)
         return render_template('welcome.html', club=club, competitions=competitions, now=now), 400
 
-    # Si le nombre de places disponibles est inférieur au nombre de place demandées
-    if int(competition['numberOfPlaces']) < placesRequired:
-        flash("Pas assez de places disponibles dans la compétition.")
-        return render_template('welcome.html', club=club, competitions=competitions, now=now), 400
-
-    # Si le nombre de places demandées est supérieur à la limite
-    if placesRequired > BOOKING_LIMIT:
-        flash(f"Vous ne pouvez pas réserver plus de {BOOKING_LIMIT} places.")
-        return render_template("welcome.html", club=club, competitions=competitions, now=now), 400
-
-    # Si le club n'a pas assez de points pour réserver le nombre de places demandées
-    if int(club['points']) < placesRequired:
-        flash("Pas assez de points pour réserver ce nombre de places.")
-        return render_template('welcome.html', club=club, competitions=competitions, now=now), 400
-
-    # Si ok, on déduit le nombre de places demandées du nombre de places disponibles
-    competition['numberOfPlaces'] = str(int(competition['numberOfPlaces']) - placesRequired)
-
-    # Si ok, on déduit le même nombre de points du club
-    club['points'] = str(int(club['points']) - placesRequired)
-
-    # Message de succès
+    # Récupére le nb de places de la compétition en str, le convertir en entier, puis
+    # soustrait le nb de places souhaitées, puis convertir le résultat en str et mettre à jour la valeur de la compétition.
+    competition['numberOfPlaces'] = str(int(competition['numberOfPlaces']) - places_required)
+    
+    # Récupére le nb de points du club en str, le convertir en entier, puis
+    # soustrait le nb de places souhaitées, puis convertir le résultat en str et mettre à jour la valeur du club.
+    club['points'] = str(int(club['points']) - places_required)
+    
     flash('Super ! Réservation réussie!')
-    return render_template('welcome.html', club=club, competitions=competitions, now=datetime.now()), 200
+    return render_template('welcome.html', club=club, competitions=competitions, now=now), 200
 
 
 @app.route('/book/<competition>/<club>')
 def book(competition, club):
     """
-    Gère la réservation d'une compétition pour un club donné.
-    
-    - paramètre competition: Nom de la compétition à réserver.
-    - paramètre club: Nom du club effectuant la réservation.
-    - return: Rendu de la page de réservation si la compétition et le club existent 
-              et que la compétition n'a pas encore eu lieu.
-              Rendu de la page d'accueil avec un message d'erreur dans les autres cas.
+    Page de formulaire de réservation des places.
+    Les paramètres 'competition' et 'club' sont extraits de l'URL et 
+    utilisés pour trouver la compétition et le club correspondants.
+    Renvoie la page de réservation si la compétition et le club existent et que la compétition n'a pas encore eu lieu.
+    Renvoie la page d'accueil avec un message d'erreur dans les autres cas.
     """
 
+    # si le nom du club correspond au nom passé dans l'url
+    # on stocke les détails du club dans foundClub
     foundClub = None
     for c in clubs:
         if c['name'] == club:
             foundClub = c
             break
 
+    # si le nom de la compétition correspond au nom passé dans l'url
+    # on stocke les détails de la compétition dans foundCompetition
     foundCompetition = None
     for c in competitions:
         if c['name'] == competition:
             foundCompetition = c
             break
 
-    now = datetime.now()
-    
-    if foundClub and foundCompetition:
-        competition_date = foundCompetition['date']
-        if competition_date < now:
-            flash("Cette compétition a déjà eu lieu. Réservation impossible.")
-            return render_template('welcome.html', club=foundClub, competitions=competitions, now=now)
-        return render_template('booking.html', club=foundClub, competition=foundCompetition)
-    else:
-        flash("Erreur - veuillez réessayer")
-        return render_template('welcome.html', club=foundClub, competitions=competitions, now=now)
+    # Si le club ou la compétition spécifiés dans l'URL ne sont pas trouvés dans les données
+    # on affiche un message d'erreur et on redirige l'utilisateur vers la page d'accueil.
+    if foundClub is None or foundCompetition is None:
+        flash("Erreur - Club ou compétition non trouvés, veuillez réessayer")
+        return render_template('welcome.html', club=foundClub, competitions=competitions, now=now), 404
+
+    # On limite la réservation en prenant le minimum entre les points du club 
+    # et la limite de réservation globale (BOOKING_LIMIT)
+    limit = min(int(foundClub['points']), BOOKING_LIMIT)
+    return render_template('booking.html', club=foundClub, competition=foundCompetition, limit=limit)
 
 
 @app.route('/points_clubs', methods=['GET'])
 def points_clubs():
-    # Utiliser la variable clubs déjà chargée
     return render_template('points_clubs.html', clubs=clubs)
 
 

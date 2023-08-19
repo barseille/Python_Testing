@@ -16,11 +16,12 @@ competitions = [
     {"name": "Fall Classic", "date": datetime.strptime("2020-10-22 13:30:00", '%Y-%m-%d %H:%M:%S'), "numberOfPlaces": "13"},
 ]
 
-
+# Fixture pour fournir la liste des clubs fictifs aux tests
 @pytest.fixture
 def mock_clubs():
     return clubs
 
+# Fixture pour fournir la liste des compétitions fictives aux tests
 @pytest.fixture
 def mock_competitions():
     return competitions
@@ -35,9 +36,10 @@ def client(monkeypatch):
     pendant l'exécution des tests
     """
 
+    # Remplace les données réelles par les données fictives
     monkeypatch.setattr('server.clubs', clubs)
     monkeypatch.setattr('server.competitions', competitions)
+    
+    # Crée un client de test pour simuler les requêtes HTTP
     with app.test_client() as client:
         yield client
-
-
