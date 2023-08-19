@@ -4,7 +4,7 @@ from server import get_email, EmailError
 
 def test_get_email_valid(mock_clubs):
     """
-    Tester si la fonction get_email retourne le club correspondant à un e-mail valide.
+    Objectif : S'assurer que la fonction retourne le bon club pour un e-mail valide.
     """
     
     # Arrange
@@ -19,8 +19,7 @@ def test_get_email_valid(mock_clubs):
 
 def test_get_email_invalid():
     """
-    Teste la fonction get_club_by_email avec un email invalide.
-    La fonction doit lever une exception EmailError.
+    Objectif : S'assurer que la fonction lève une exception si l'e-mail n'est pas trouvé.
     """
     
     # Arrange : email fictif
@@ -33,8 +32,7 @@ def test_get_email_invalid():
 
 def test_get_email_empty():
     """
-    Teste la fonction get_club_by_email avec une chaîne vide.
-    La fonction doit lever une exception ValueError.
+    Objectif : S'assurer que la fonction lève une exception si l'e-mail est vide.
     """
     
     # Arrange : formulaire vide
@@ -47,8 +45,8 @@ def test_get_email_empty():
 
 def test_get_email_invalid_format():
     """
-    Teste la fonction get_club_by_email avec un format invalide.
-    La fonction doit lever une exception EmailError.
+    Objectif : S'assurer que la fonction lève une exception 
+    si le format de l'e-mail est invalide.
     """
     
     # Arrange
