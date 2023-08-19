@@ -102,7 +102,6 @@ def validate_purchase(club, places_required):
     """
     Valide la demande de réservation de places pour une compétition par un club :
      
-    - competition: nombre de places dans la compétition
     - club: nombre de places que le club dispose
     - places_required: nombre de places que le club souhaite réserver.
     """
@@ -207,6 +206,7 @@ def book(competition, club):
     # On limite la réservation en prenant le minimum entre les points du club 
     # et la limite de réservation globale (BOOKING_LIMIT)
     limit = min(int(foundClub['points']), BOOKING_LIMIT)
+    
     return render_template('booking.html', club=foundClub, competition=foundCompetition, limit=limit)
 
 

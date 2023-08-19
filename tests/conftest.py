@@ -31,9 +31,8 @@ def mock_competitions():
 def client(monkeypatch):
 
     """
-    Remplace les fonctions de sauvegarde par des fonctions vides, 
-    ce qui empêche les modifications d'être écrites dans les fichiers JSON réels 
-    pendant l'exécution des tests
+    Crée un client de test avec des données fictives. 
+    Garantissant que les tests n'affectent pas les données réelles.
     """
 
     # Remplace les données réelles par les données fictives
